@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS posts (
 )
 ''')
 
-# seed with small sample data
+# seed sample data
 c.execute("DELETE FROM posts")
 c.executemany("INSERT INTO posts (title, body) VALUES (?, ?)", [
     ("Hello World", "This is the first post"),
