@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, g
+from flask import Flask, request, render_template, g, jsonify
 import sqlite3
 
 app = Flask(__name__)
@@ -21,18 +21,19 @@ def index():
     return render_template("index.html")
 
 # deliberately vulnerable search endpoint (SQL injection)
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
 def search():
-    q = request.values.get("q", "")
+    q = request.args.get("q", "")
     db = get_db()
-    # DANGEROUS: direct string concatenation used intentionally for lab
+    # INTENTIONAL: vulnerable string concatenation for lab demonstration
     query = f"SELECT id, title, body FROM posts WHERE title LIKE '%{q}%' OR body LIKE '%{q}%'"
     try:
         cur = db.execute(query)
         rows = cur.fetchall()
-    except Exception as e:
+    except Exception:
         rows = []
-    return {"query": query, "results": [{"id": r[0], "title": r[1], "body": r[2]} for r in rows]}
+    results = [{"id": r[0], "title": r[1], "body": r[2]} for r in rows]
+    return jsonify({"query": query, "results": results})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
